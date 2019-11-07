@@ -4,6 +4,9 @@ using UnityEngine;
 
 public class Rocket : MonoBehaviour
 {
+    [SerializeField] float rcsThrust = 200f;
+    [SerializeField] float mainThrust = 750f;
+
     Rigidbody rigidBody;
     AudioSource audioSource;
 
@@ -17,19 +20,17 @@ public class Rocket : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        ProcessInput();
+        Thrust();
+        Rotate();
     }
 
-    // This function should decide on how to process not perform the action
-    private void ProcessInput()
+    private void Thrust()
     {
-        bool thrust = Input.GetKey(KeyCode.Space);
-        bool turn_left = Input.GetKey(KeyCode.A);
-        bool turn_right = Input.GetKey(KeyCode.D);
+        float thrustThisFrame = mainThrust * Time.deltaTime;
 
-        if (thrust)
+        if (Input.GetKey(KeyCode.Space))
         {
-            rigidBody.AddRelativeForce(Vector3.up);
+            rigidBody.AddRelativeForce(Vector3.up * thrustThisFrame);
             if (!audioSource.isPlaying)
             {
                 audioSource.Play();
@@ -39,15 +40,24 @@ public class Rocket : MonoBehaviour
         {
             audioSource.Stop();
         }
-
-        if (turn_left)
-        {
-            transform.Rotate(Vector3.forward);
-        }
-        else if (turn_right)
-        {
-            transform.Rotate(-Vector3.forward);
-        }
     }
+
+    private void Rotate()
+    {
+        rigidBody.freezeRotation = true; // Stop physics engine induced rotation before manual control
+        float rotationThisFrame = rcsThrust * Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.A))
+        {
+            transform.Rotate(Vector3.forward * rotationThisFrame);
+        }
+        else if (Input.GetKey(KeyCode.D))
+        {
+            transform.Rotate(-Vector3.forward * rotationThisFrame);
+        }
+
+        rigidBody.freezeRotation = false; // Resume physics-engine induced rotation
+    }
+
 
 }
