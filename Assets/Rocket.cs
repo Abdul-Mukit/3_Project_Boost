@@ -22,12 +22,19 @@ public class Rocket : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Thrust();
-        Rotate();
+        // Todo: stop the rocket sound somewhere in the code
+        if (state != State.Dying)
+        {
+            Thrust();
+            Rotate();
+        }
+        
     }
 
     void OnCollisionEnter(Collision collision)
     {
+        if (state == State.Dying) { return; } // ignore collisions when dead
+
         switch (collision.gameObject.tag)
         {
             case "Friendly":
